@@ -11,12 +11,12 @@ services:
     image: "jc21/nginx-proxy-manager:latest"
     restart: unless-stopped
     ports:
-      - "8341:80"
-      - "81:81"
-      - "8766:443"
+      - "${NGINX_PORT_80:-8341}:80"
+      - "${NGINX_PORT_81:-81}:81"
+      - "${NGINX_PORT_443:-8766}:443"
     volumes:
-      - /volume1/docker/media-server/data:/data
-      - /volume1/docker/media-server/letsencrypt:/etc/letsencrypt
+      - "${HOMELAB_PATH}/nginx/data:/data"
+      - "${HOMELAB_PATH}/nginx/letsencrypt:/etc/letsencrypt"
 
   # Vaultwarden (Bitwarden)
   vaultwarden:
@@ -26,14 +26,14 @@ services:
       ADMIN_TOKEN: ${VAULTWARDEN_ADMIN_TOKEN} # Generate your own token
       SMTP_HOST: ${VAULTWARDEN_SMPT_HOST} # SMTP Hostname
       SMTP_FROM: ${VAULTWARDEN_SMTP_FROM} # SMTP From Address
-      SMTP_PORT: 587 # SMTP Port
-      SMTP_SECURITY: "starttls" # SMTP Security [none, starttls, tls]
+      SMTP_PORT: ${VAULTWARDEN_SMTP_PORT:-587} # SMTP Port
+      SMTP_SECURITY: ${VAULTWARDEN_SMTP_SECURITY:-starttls} # SMTP Security [none, starttls, tls]
       SMTP_USERNAME: ${VAULTWARDEN_SMTP_USERNAME} # SMTP Username
       SMTP_PASSWORD: ${VAULTWARDEN_SMTP_PASSWORD} # SMTP Password
     volumes:
-      - /volume1/docker/media-server/vw-data:/data
+      - "${HOMELAB_PATH}/vw-data:/data"
     ports:
-      - 6969:80
+      - "${VAULTWARDEN_PORT:-6969}:80"
 
   # Overseerr (Requests)
   overseerr:
@@ -44,9 +44,9 @@ services:
       - TZ=Europe/London
       - PORT=5055
     ports:
-      - 5055:5055
+      - "${OVERSEERR_PORT:-5055}:5055"
     volumes:
-      - /volume1/docker/media-server/overseerr-data:/app/config
+      - "${HOMELAB_PATH}/overseerr-data:/app/config"
     restart: unless-stopped
 
   # Homarr (Dashboard Manager)
@@ -54,12 +54,12 @@ services:
     container_name: homarr
     image: ghcr.io/ajnart/homarr:latest
     volumes:
-      - /volume1/docker/media-server/homarr/configs:/app/data/configs
-      - /volume1/docker/media-server/homarr/data:/data
-      - /volume1/docker/media-server/homarr/icons:/app/public/icons
-      - //var/run/docker.sock:/var/run/docker.sock
+      - "${HOMELAB_PATH}/homarr/configs:/app/data/configs"
+      - "${HOMELAB_PATH}/homarr/data:/data"
+      - "${HOMELAB_PATH}/homarr/icons:/app/public/icons"
+      - "//var/run/docker.sock:/var/run/docker.sock"
     ports:
-      - "7575:7575"
+      - "${HOMARR_PORT:-7575}:7575"
     restart: unless-stopped
 
   # Radarr (Movies)
@@ -71,11 +71,11 @@ services:
       - PGID=100
       - TZ=Europe/London
     volumes:
-      - /volume1/docker/media-server/radarr:/config
-      - /volume1/homelab-media/media/movies:/movies
-      - /volume1/homelab-media/torrents:/downloads
+      - "${HOMELAB_PATH}/radarr:/config"
+      - "${HOMELAB_MEDIA_PATH}/media/movies:/movies"
+      - "${HOMELAB_MEDIA_PATH}/torrents:/downloads"
     ports:
-      - 7878:7878
+      - "${RADARR_PORT:-7878}:7878"
     restart: unless-stopped
 
   # Sonarr (TV Shows)
@@ -87,11 +87,11 @@ services:
       - PGID=100
       - TZ=Europe/London
     volumes:
-      - /volume1/docker/media-server/sonarr:/config
-      - /volume1/homelab-media/media/tv:/tv
-      - /volume1/homelab-media/torrents:/downloads
+      - "${HOMELAB_PATH}/sonarr:/config"
+      - "${HOMELAB_MEDIA_PATH}/media/tv:/tv"
+      - "${HOMELAB_MEDIA_PATH}/torrents:/downloads"
     ports:
-      - 8989:8989
+      - "${SONARR_PORT:-8989}:8989"
     restart: unless-stopped
 
   # Lidarr (Music)
@@ -103,14 +103,14 @@ services:
       - PGID=100
       - TZ=Europe/London
     volumes:
-      - /volume1/docker/media-server/lidarr:/config
-      - /volume1/homelab-media/media/music:/music
-      - /volume1/homelab-media/torrents:/downloads
+      - "${HOMELAB_PATH}/lidarr:/config"
+      - "${HOMELAB_MEDIA_PATH}/media/music:/music"
+      - "${HOMELAB_MEDIA_PATH}/torrents:/downloads"
     ports:
-      - 8686:8686
+      - "${LIDARR_PORT:-8686}:8686"
     restart: unless-stopped
-  # Readarr (Books)
 
+  # Readarr (Books)
   readarr:
     image: lscr.io/linuxserver/readarr:develop
     container_name: readarr
@@ -119,11 +119,11 @@ services:
       - PGID=100
       - TZ=Europe/London
     volumes:
-      - /volume1/docker/media-server/readarr:/config
-      - /volume1/homelab-media/media/books:/books
-      - /volume1/homelab-media/torrents:/downloads
+      - "${HOMELAB_PATH}/readarr:/config"
+      - "${HOMELAB_MEDIA_PATH}/media/books:/books"
+      - "${HOMELAB_MEDIA_PATH}/torrents:/downloads"
     ports:
-      - 8787:8787
+      - "${READARR_PORT:-8787}:8787"
     restart: unless-stopped
 
   # Bazarr (Subtitles)
@@ -135,11 +135,11 @@ services:
       - PGID=100
       - TZ=Europe/London
     volumes:
-      - /volume1/docker/media-server/bazarr:/config
-      - /volume1/homelab-media/media/tv:/tv
-      - /volume1/homelab-media/media/movies:/movies
+      - "${HOMELAB_PATH}/bazarr:/config"
+      - "${HOMELAB_MEDIA_PATH}/media/tv:/tv"
+      - "${HOMELAB_MEDIA_PATH}/media/movies:/movies"
     ports:
-      - 6767:6767
+      - "${BAZARR_PORT:-6767}:6767"
     restart: unless-stopped
 
   # Prowlarr (Indexer)
@@ -151,9 +151,9 @@ services:
       - PGID=100
       - TZ=Europe/London
     volumes:
-      - /volume1/docker/media-server/prowlarr:/config
+      - "${HOMELAB_PATH}/prowlarr:/config"
     ports:
-      - 9696:9696
+      - "${PROWLARR_PORT:-9696}:9696"
     restart: unless-stopped
 
   # Maintainerr (Deleting Old Media)
@@ -161,11 +161,11 @@ services:
     image: jorenn92/maintainerr:latest
     container_name: maintainerr
     volumes:
-      - /volume1/docker/media-server/maintainerr:/opt/data
+      - "${HOMELAB_PATH}/maintainerr:/opt/data"
     environment:
       - TZ=Europe/Brussels
     ports:
-      - 8154:80
+      - "${MAINTAINERR_PORT:-8154}:80"
     restart: unless-stopped
 
   # qBittorrent (Torrent Client)
@@ -178,13 +178,13 @@ services:
       - TZ=Europe/London
       - WEBUI_PORT=8080
     volumes:
-      - /volume1/docker/media-server/qbit:/config
-      - /volume1/docker/media-server/vuetorrent:/vuetorrent
-      - /volume1/homelab-media/torrents:/downloads
+      - "${HOMELAB_PATH}/qbit:/config"
+      - "${HOMELAB_PATH}/vuetorrent:/vuetorrent"
+      - "${HOMELAB_MEDIA_PATH}/torrents:/downloads"
     ports:
-      - 8080:8080
-      - 6881:6881
-      - 6881:6881/udp
+      - "${QBITTORRENT_WEBUI_PORT:-8080}:8080"
+      - "${QBITTORRENT_PORT:-6881}:6881"
+      - "${QBITTORRENT_PORT_UDP:-6881}:6881/udp"
     restart: unless-stopped
 
   # Dash (System Monitoring)
@@ -193,9 +193,9 @@ services:
     restart: unless-stopped
     privileged: true
     ports:
-      - "7676:3001"
+      - "${DASH_PORT:-7676}:3001"
     volumes:
-      - /volume1/docker/media-server/dash:/mnt/host:ro
+      - "${HOMELAB_PATH}/dash:/mnt/host:ro"
     environment:
       DASHDOT_ENABLE_CPU_TEMPS: "true"
 
@@ -209,8 +209,8 @@ services:
       - TZ=Europe/London
 
     volumes:
-      - "/volume1/docker/media-server/etc-pihole:/etc/pihole"
-      - "/volume1/docker/media-server/etc-dnsmasq.d:/etc/dnsmasq.d"
+      - "${HOMELAB_PATH}/etc-pihole:/etc/pihole"
+      - "${HOMELAB_PATH}/etc-dnsmasq.d:/etc/dnsmasq.d"
     cap_add:
       - NET_ADMIN # Required if you are using Pi-hole as your DHCP server, else not needed
     network_mode: host
@@ -221,9 +221,9 @@ services:
     container_name: homeassistant
     image: "ghcr.io/home-assistant/home-assistant:stable"
     volumes:
-      - /volume1/docker/media-server/home-assistant:/config
-      - /etc/localtime:/etc/localtime:ro
-      - /run/dbus:/run/dbus:ro
+      - "${HOMELAB_PATH}/home-assistant:/config"
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/run/dbus:/run/dbus:ro"
     restart: unless-stopped
     privileged: true
     network_mode: host
