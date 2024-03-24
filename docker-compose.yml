@@ -42,12 +42,15 @@ services:
     environment:
       - LOG_LEVEL=debug
       - TZ=Europe/London
-      - PORT=5055
+      - PORT=${OVERSEERR_PORT:-5055}
     ports:
       - "${OVERSEERR_PORT:-5055}:5055"
     volumes:
       - "${HOMELAB_PATH}/overseerr-data:/app/config"
     restart: unless-stopped
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
 
   # Homarr (Dashboard Manager)
   homarr:
