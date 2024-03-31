@@ -161,14 +161,17 @@ services:
 
   # Maintainerr (Deleting Old Media)
   maintainerr:
-    image: jorenn92/maintainerr:latest
+    image: ghcr.io/jorenn92/maintainerr:latest
     container_name: maintainerr
+    user: "1000:1000"
     volumes:
-      - "${HOMELAB_PATH}/maintainerr:/opt/data"
+      - type: bind
+        source: "${HOMELAB_PATH}/maintainerr"
+        target: /opt/data
     environment:
       - TZ=Europe/Brussels
     ports:
-      - "${MAINTAINERR_PORT:-8154}:80"
+      - "${MAINTAINERR_PORT:-6246}:6246"
     restart: unless-stopped
 
   # qBittorrent (Torrent Client)
@@ -231,7 +234,7 @@ services:
     privileged: true
     network_mode: host
 
-# Open WebUI
+  # Open WebUI (Web Interface for Ollama)
   open-webui:
     image: ghcr.io/open-webui/open-webui:main
     container_name: open-webui
@@ -239,6 +242,6 @@ services:
     ports:
       - "${OPEN_WEBUI_PORT:-3000}:8080"
     environment:
-      OLLAMA_BASE_URL: http://192.168.0.223:11434
+      OLLAMA_BASE_URL: ${OPEN_WEBUI_OLLAMA_BASE_URL}
     volumes:
       - "${HOMELAB_PATH}/open-webui:/app/backend/data"
