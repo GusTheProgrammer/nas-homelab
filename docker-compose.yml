@@ -245,3 +245,12 @@ services:
       OLLAMA_BASE_URL: ${OPEN_WEBUI_OLLAMA_BASE_URL}
     volumes:
       - "${HOMELAB_PATH}/open-webui:/app/backend/data"
+
+  telgram-bot:
+    image: ghaithchaal/telbot:latest
+    container_name: telgram-bot
+    restart: always
+    environment:
+      username: ${username}
+      password: ${password}
+      BOT_TOKEN: ${BOT_TOKEN}
