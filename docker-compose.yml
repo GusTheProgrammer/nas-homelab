@@ -254,5 +254,3 @@ services:
       username: ${username}
       password: ${password}
       BOT_TOKEN: ${BOT_TOKEN}
-    volumes:
-      - "${HOMELAB_PATH}/open-webui:/app/backend/data"
