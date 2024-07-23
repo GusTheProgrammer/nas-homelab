@@ -246,11 +246,11 @@ services:
     volumes:
       - "${HOMELAB_PATH}/open-webui:/app/backend/data"
 
-  telgram-bot:
-    image: ghaithchaal/telbot:latest
-    container_name: telgram-bot
+  shopify-price-tracker:
+    image: ghaithchaal/shopify-price-tracker:latest
+    container_name: shopify-price-tracker
     restart: always
     environment:
-      username: ${username}
-      password: ${password}
+      CHAT_IDS: ${CHAT_IDS}
+      VENDORS: ${VENDORS}
       BOT_TOKEN: ${BOT_TOKEN}
