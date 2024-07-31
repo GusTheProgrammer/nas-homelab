@@ -247,7 +247,7 @@ services:
       - "${HOMELAB_PATH}/open-webui:/app/backend/data"
 
   shopify-price-tracker:
-    image: ghaithchaal/shopify-price-tracker:latest
+    image: ghaithchaal/shopify-price-tracker:1.1.1
     container_name: shopify-price-tracker
     restart: always
     environment:
