@@ -214,5 +214,13 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
     restart: unless-stopped
-
- 
+  
+  # Gotify (Notifications)
+  gotify:
+    image: gotify/server
+    ports:
+      - "${GOTIFY_PORT:-8082}:80"
+    environment:
+      - GOTIFY_DEFAULTUSER_PASS=custom
+    volumes:
+      - "${HOMELAB_PATH}/gotify-data:/app/data"
