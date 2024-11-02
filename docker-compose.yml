@@ -7,7 +7,7 @@ services:
   # Nginx Proxy Manager (Reverse Proxy)
   nginx:
     image: "jc21/nginx-proxy-manager:latest"
-    container_name: nginx_proxy_manager
+    container_name: NginxProxyManager
     restart: unless-stopped
     ports:
       - "${NGINX_PORT_80:-8341}:80"
@@ -226,13 +226,18 @@ services:
       - "GOTIFY_DEFAULTUSER_NAME=${GOTIFY_USERNAME}"
       - "GOTIFY_DEFAULTUSER_PASS=${GOTIFY_PASSWORD}"
       - TZ=Europe/London
+        # Gotify 2 Telegram Plugin Environment Variables
+      - "GOTIFY_HOST=ws://localhost:80"
+      - "GOTIFY_CLIENT_TOKEN=${GOTIFY_CLIENT_TOKEN}"
+      - "TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}"
+      - "TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}"
     volumes:
       - "${HOMELAB_PATH}/gotify-data:/app/data"
   
   # Uptime Kuma (Uptime Monitoring)
   uptime-kuma:
     image: louislam/uptime-kuma:1
-    container_name: uptime-kuma
+    container_name: UptimeKuma
     volumes:
       - "${HOMELAB_PATH}/uptime-kuma-data:/app/data"
     ports:
