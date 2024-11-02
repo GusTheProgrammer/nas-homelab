@@ -219,6 +219,8 @@ services:
     ports:
       - "${GOTIFY_PORT:-8082}:80"
     environment:
-      - GOTIFY_DEFAULTUSER_PASS=custom
+      - "GOTIFY_DEFAULTUSER_NAME=${GOTIFY_USERNAME}"
+      - "GOTIFY_DEFAULTUSER_PASS=${GOTIFY_PASSWORD}"
+      - TZ=Europe/London
     volumes:
       - "${HOMELAB_PATH}/gotify-data:/app/data"
