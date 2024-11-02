@@ -224,3 +224,13 @@ services:
       - TZ=Europe/London
     volumes:
       - "${HOMELAB_PATH}/gotify-data:/app/data"
+  
+  # Uptime Kuma (Uptime Monitoring)
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    volumes:
+      - "${HOMELAB_PATH}/uptime-kuma-data:/app/data"
+    ports:
+      - "${UPTIME_KUMA_PORT:-8083}:3001"
+    restart: always
