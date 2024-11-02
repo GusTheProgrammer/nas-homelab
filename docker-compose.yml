@@ -227,7 +227,7 @@ services:
       - "GOTIFY_DEFAULTUSER_PASS=${GOTIFY_PASSWORD}"
       - TZ=Europe/London
         # Gotify 2 Telegram Plugin Environment Variables
-      - "GOTIFY_HOST=ws://localhost:80"
+      - "GOTIFY_HOST=ws://gotify:80"
       - "GOTIFY_CLIENT_TOKEN=${GOTIFY_CLIENT_TOKEN}"
       - "TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}"
       - "TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}"
