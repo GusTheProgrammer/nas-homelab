@@ -7,6 +7,7 @@ services:
   # Nginx Proxy Manager (Reverse Proxy)
   nginx:
     image: "jc21/nginx-proxy-manager:latest"
+    container_name: nginx_proxy_manager
     restart: unless-stopped
     ports:
       - "${NGINX_PORT_80:-8341}:80"
@@ -19,6 +20,7 @@ services:
   # Vaultwarden (Bitwarden)
   vaultwarden:
     image: vaultwarden/server:latest
+    container_name: Vaultwarden
     restart: always
     environment:
       ADMIN_TOKEN: ${VAULTWARDEN_ADMIN_TOKEN} # Generate your own token
@@ -36,7 +38,7 @@ services:
   # Overseerr (Requests)
   overseerr:
     image: sctx/overseerr:latest
-    container_name: overseerr
+    container_name: Overseerr
     environment:
       - LOG_LEVEL=debug
       - TZ=Europe/London
@@ -52,7 +54,7 @@ services:
 
   # Homarr (Dashboard Manager)
   homarr:
-    container_name: homarr
+    container_name: Homarr
     image: ghcr.io/ajnart/homarr:latest
     volumes:
       - "${HOMELAB_PATH}/homarr/configs:/app/data/configs"
@@ -66,7 +68,7 @@ services:
   # Radarr (Movies)
   radarr:
     image: lscr.io/linuxserver/radarr:latest
-    container_name: radarr
+    container_name: Radarr
     environment:
       - PUID=1026
       - PGID=100
@@ -82,7 +84,7 @@ services:
   # Sonarr (TV Shows)
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
-    container_name: sonarr
+    container_name: Sonarr
     environment:
       - PUID=1026
       - PGID=100
@@ -98,7 +100,7 @@ services:
   # Lidarr (Music)
   lidarr:
     image: lscr.io/linuxserver/lidarr:latest
-    container_name: lidarr
+    container_name: Lidarr
     environment:
       - PUID=1026
       - PGID=100
@@ -114,7 +116,7 @@ services:
   # Readarr (Books)
   readarr:
     image: lscr.io/linuxserver/readarr:develop
-    container_name: readarr
+    container_name: Readarr
     environment:
       - PUID=1026
       - PGID=100
@@ -130,7 +132,7 @@ services:
   # Bazarr (Subtitles)
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
-    container_name: bazarr
+    container_name: Bazarr
     environment:
       - PUID=1026
       - PGID=100
@@ -146,7 +148,7 @@ services:
   # Prowlarr (Indexer)
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
-    container_name: prowlarr
+    container_name: Prowlarr
     environment:
       - PUID=1026
       - PGID=100
@@ -160,7 +162,7 @@ services:
   # Maintainerr (Deleting Old Media)
   maintainerr:
     image: ghcr.io/jorenn92/maintainerr:latest
-    container_name: maintainerr
+    container_name: Maintainerr
     user: "1000:1000"
     volumes:
       - type: bind
@@ -175,7 +177,7 @@ services:
   # qBittorrent (Torrent Client)
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
-    container_name: qbittorrent
+    container_name: qBittorrent
     environment:
       - PUID=1026
       - PGID=100
@@ -194,6 +196,7 @@ services:
   # Dash (System Monitoring)
   dash:
     image: mauricenino/dashdot:latest
+    container_name: Dash
     restart: unless-stopped
     privileged: true
     ports:
@@ -206,7 +209,7 @@ services:
   # Watchtower (Auto Update)
   watchtower:
     image: containrrr/watchtower:latest
-    container_name: watchtower
+    container_name: Watchtower
     ports:
       - "${WATCHTOWER_PORT:-8081}:8080"
     volumes:
@@ -216,6 +219,7 @@ services:
   # Gotify (Notifications)
   gotify:
     image: gotify/server
+    container_name: Gotify
     ports:
       - "${GOTIFY_PORT:-8082}:80"
     environment:
