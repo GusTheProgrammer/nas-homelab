@@ -214,7 +214,21 @@ services:
       - "${WATCHTOWER_PORT:-8081}:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-    restart: unless-stopped
+    environment:
+      - TZ=Europe/London
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_INCLUDE_STOPPED=false
+      - WATCHTOWER_INCLUDE_RESTARTING=true
+      - WATCHTOWER_SCHEDULE="0 0 */2 * * *" # Update & Scan containers every 2 hours
+      - WATCHTOWER_LABEL_ENABLE=false
+      - WATCHTOWER_TIMEOUT=30s
+      - WATCHTOWER_HTTP_API_METRICS=true
+      - WATCHTOWER_NOTIFICATIONS=gotify
+      - WATCHTOWER_NOTIFICATION_GOTIFY_URL=http://gotify:80
+      - WATCHTOWER_NOTIFICATION_GOTIFY_TOKEN=${GOTIFY_WATCHTOWER_TOKEN}
+      - WATCHTOWER_MONITOR_ONLY=true
+      - WATCHTOWER_NOTIFICATIONS_HOSTNAME=Homelab
+    restart: on-failure:5
   
   # Gotify (Notifications)
   gotify:
