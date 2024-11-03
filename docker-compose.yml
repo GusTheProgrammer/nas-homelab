@@ -259,7 +259,7 @@ services:
     
   # Tatulli (Plex Statistics)
   tatulli:
-    image: lscr.io/linuxserver/tatulli:latest
+    image: ghcr.io/tautulli/tautulli
     container_name: Tatulli
     environment:
       - PUID=1026
