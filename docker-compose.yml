@@ -219,7 +219,7 @@ services:
       - WATCHTOWER_CLEANUP=true
       - WATCHTOWER_INCLUDE_STOPPED=false
       - WATCHTOWER_INCLUDE_RESTARTING=true
-      - WATCHTOWER_SCHEDULE="0 0 */2 * * *" # Update & Scan containers every 2 hours
+      - WATCHTOWER_SCHEDULE=0 0 */2 * * * # Every 2 hours
       - WATCHTOWER_LABEL_ENABLE=false
       - WATCHTOWER_TIMEOUT=30s
       - WATCHTOWER_NOTIFICATIONS=gotify
