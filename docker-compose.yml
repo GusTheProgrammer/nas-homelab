@@ -256,3 +256,17 @@ services:
     ports:
       - "${UPTIME_KUMA_PORT:-8083}:3001"
     restart: always
+    
+  # Tatulli (Plex Statistics)
+  tatulli:
+    image: lscr.io/linuxserver/tatulli:latest
+    container_name: Tatulli
+    environment:
+      - PUID=1026
+      - PGID=100
+      - TZ=Europe/London
+    volumes:
+      - "${HOMELAB_PATH}/tatulli/config:/config"
+    ports:
+      - "${TATULLI_PORT:-8181}:8181"
+    restart: unless-stopped
