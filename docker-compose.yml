@@ -212,6 +212,7 @@ services:
     container_name: Watchtower
     ports:
       - "${WATCHTOWER_PORT:-8081}:8080"
+      - "${HOME}/.docker/config.json:/config.json"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
