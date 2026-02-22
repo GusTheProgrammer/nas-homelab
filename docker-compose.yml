@@ -23,34 +23,38 @@ services:
     container_name: Vaultwarden
     restart: always
     environment:
-      ADMIN_TOKEN: ${VAULTWARDEN_ADMIN_TOKEN} # Generate your own token
-      SMTP_HOST: ${VAULTWARDEN_SMPT_HOST} # SMTP Hostname
-      SMTP_FROM: ${VAULTWARDEN_SMTP_FROM} # SMTP From Address
-      SMTP_PORT: ${VAULTWARDEN_SMTP_PORT:-587} # SMTP Port
-      SMTP_SECURITY: ${VAULTWARDEN_SMTP_SECURITY:-starttls} # SMTP Security [none, starttls, tls]
-      SMTP_USERNAME: ${VAULTWARDEN_SMTP_USERNAME} # SMTP Username
-      SMTP_PASSWORD: ${VAULTWARDEN_SMTP_PASSWORD} # SMTP Password
+      ADMIN_TOKEN: ${VAULTWARDEN_ADMIN_TOKEN}
+      SMTP_HOST: ${VAULTWARDEN_SMPT_HOST}
+      SMTP_FROM: ${VAULTWARDEN_SMTP_FROM}
+      SMTP_PORT: ${VAULTWARDEN_SMTP_PORT:-587}
+      SMTP_SECURITY: ${VAULTWARDEN_SMTP_SECURITY:-starttls}
+      SMTP_USERNAME: ${VAULTWARDEN_SMTP_USERNAME}
+      SMTP_PASSWORD: ${VAULTWARDEN_SMTP_PASSWORD}
     volumes:
       - "${HOMELAB_PATH}/vw-data:/data"
     ports:
       - "${VAULTWARDEN_PORT:-6969}:80"
 
-  # Overseerr (Requests)
-  overseerr:
-    image: sctx/overseerr:latest
-    container_name: Overseerr
+  # Seerr (Requests)
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    init: true
+    container_name: Seerr
     environment:
       - LOG_LEVEL=debug
       - TZ=Europe/London
-      - PORT=${OVERSEERR_PORT:-5055}
+      - PORT=${SEERR_PORT:-5055}
     ports:
-      - "${OVERSEERR_PORT:-5055}:5055"
+      - "${SEERR_PORT:-5055}:5055"
     volumes:
-      - "${HOMELAB_PATH}/overseerr-data:/app/config"
+      - "${HOMELAB_PATH}/seerr-data:/app/config"
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
     restart: unless-stopped
-    dns:
-      - 1.1.1.1
-      - 8.8.8.8
 
   # Homarr (Dashboard Manager)
   homarr:
@@ -111,22 +115,6 @@ services:
       - "${HOMELAB_MEDIA_PATH}/torrents:/downloads"
     ports:
       - "${LIDARR_PORT:-8686}:8686"
-    restart: unless-stopped
-
-  # Readarr (Books)
-  readarr:
-    image: lscr.io/linuxserver/readarr:develop
-    container_name: Readarr
-    environment:
-      - PUID=1026
-      - PGID=100
-      - TZ=Europe/London
-    volumes:
-      - "${HOMELAB_PATH}/readarr:/config"
-      - "${HOMELAB_MEDIA_PATH}/media/books:/books"
-      - "${HOMELAB_MEDIA_PATH}/torrents:/downloads"
-    ports:
-      - "${READARR_PORT:-8787}:8787"
     restart: unless-stopped
 
   # Bazarr (Subtitles)
@@ -205,7 +193,7 @@ services:
       - "${HOMELAB_PATH}/dash:/mnt/host:ro"
     environment:
       DASHDOT_ENABLE_CPU_TEMPS: "true"
-  
+
   # Watchtower (Auto Update)
   watchtower:
     image: containrrr/watchtower:latest
@@ -223,50 +211,4 @@ services:
       - WATCHTOWER_SCHEDULE=0 0 */2 * * * # Every 2 hours
       - WATCHTOWER_LABEL_ENABLE=false
       - WATCHTOWER_TIMEOUT=30s
-      - WATCHTOWER_NOTIFICATIONS=gotify
-      - WATCHTOWER_NOTIFICATION_GOTIFY_URL=http://gotify:80
-      - WATCHTOWER_NOTIFICATION_GOTIFY_TOKEN=${GOTIFY_WATCHTOWER_TOKEN}
-      - WATCHTOWER_NOTIFICATIONS_HOSTNAME=Homelab
     restart: on-failure:5
-  
-  # Gotify (Notifications)
-  gotify:
-    image: gotify/server
-    container_name: Gotify
-    ports:
-      - "${GOTIFY_PORT:-8082}:80"
-    environment:
-      - "GOTIFY_DEFAULTUSER_NAME=${GOTIFY_USERNAME}"
-      - "GOTIFY_DEFAULTUSER_PASS=${GOTIFY_PASSWORD}"
-      - TZ=Europe/London
-        # Gotify 2 Telegram Plugin Environment Variables
-      - "GOTIFY_HOST=ws://localhost:80"
-      - "GOTIFY_CLIENT_TOKEN=${GOTIFY_CLIENT_TOKEN}"
-      - "TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}"
-      - "TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}"
-    volumes:
-      - "${HOMELAB_PATH}/gotify-data:/app/data"
-  
-  # Uptime Kuma (Uptime Monitoring)
-  uptime-kuma:
-    image: louislam/uptime-kuma:1
-    container_name: UptimeKuma
-    volumes:
-      - "${HOMELAB_PATH}/uptime-kuma-data:/app/data"
-    ports:
-      - "${UPTIME_KUMA_PORT:-8083}:3001"
-    restart: always
-    
-  # Tatulli (Plex Statistics)
-  tatulli:
-    image: ghcr.io/tautulli/tautulli
-    container_name: Tatulli
-    environment:
-      - PUID=1026
-      - PGID=100
-      - TZ=Europe/London
-    volumes:
-      - "${HOMELAB_PATH}/tatulli/config:/config"
-    ports:
-      - "${TATULLI_PORT:-8181}:8181"
-    restart: unless-stopped
