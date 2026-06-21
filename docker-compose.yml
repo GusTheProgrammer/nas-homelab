@@ -30,7 +30,7 @@ services:
       - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
       - DOMAINS=${DOMAINS}
       - PROXIED=true
-      
+
   # Vaultwarden (Bitwarden)
   vaultwarden:
     image: vaultwarden/server:latest
@@ -73,12 +73,12 @@ services:
   # Homarr (Dashboard Manager)
   homarr:
     container_name: Homarr
-    image: ghcr.io/ajnart/homarr:latest
+    image: ghcr.io/homarr-labs/homarr:latest
     volumes:
-      - "${HOMELAB_PATH}/homarr/configs:/app/data/configs"
-      - "${HOMELAB_PATH}/homarr/data:/data"
-      - "${HOMELAB_PATH}/homarr/icons:/app/public/icons"
-      - "//var/run/docker.sock:/var/run/docker.sock"
+      - "${HOMELAB_PATH}/homarr/appdata:/appdata"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      - SECRET_ENCRYPTION_KEY=${HOMARR_SECRET_KEY}
     ports:
       - "${HOMARR_PORT:-7575}:7575"
     restart: unless-stopped
