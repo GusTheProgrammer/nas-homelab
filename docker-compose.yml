@@ -17,6 +17,20 @@ services:
       - "${HOMELAB_PATH}/nginx/data:/data"
       - "${HOMELAB_PATH}/nginx/letsencrypt:/etc/letsencrypt"
 
+  # Cloudflare DDNS (Auto IP Tracker)
+  cloudflare-ddns:
+    image: favonia/cloudflare-ddns:1
+    container_name: CloudflareDDNS
+    restart: unless-stopped
+    user: "1000:1000"
+    read_only: true
+    cap_drop: [all]
+    security_opt: [no-new-privileges:true]
+    environment:
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      - DOMAINS=${DOMAINS}
+      - PROXIED=true
+      
   # Vaultwarden (Bitwarden)
   vaultwarden:
     image: vaultwarden/server:latest
