@@ -13,7 +13,7 @@ services:
       - "${NGINX_PORT_80:-8341}:80"
       - "${NGINX_PORT_81:-81}:81"
       - "${NGINX_PORT_443:-8766}:443"
-      - "25565:25565"
+      - "${NGINX_MINECRAFT_PORT:-25565}:25565"
     volumes:
       - "${HOMELAB_PATH}/nginx/data:/data"
       - "${HOMELAB_PATH}/nginx/letsencrypt:/etc/letsencrypt"
@@ -70,6 +70,38 @@ services:
       interval: 15s
       retries: 3
     restart: unless-stopped
+
+  # Plex (Media Server)
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    container_name: Plex
+    network_mode: host
+    environment:
+      - PUID=1026
+      - PGID=100
+      - TZ=Europe/London
+      - VERSION=docker
+    volumes:
+      - "${HOMELAB_PATH}/plex:/config"
+      - "${HOMELAB_MEDIA_PATH}/media/movies:/movies"
+      - "${HOMELAB_MEDIA_PATH}/media/tv:/tv"
+    restart: unless-stopped
+
+  # Jellyfin (Media Server)
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: Jellyfin
+    user: "1026:100"
+    ports:
+      - "${JELLYFIN_PORT:-8096}:8096"
+      - "7359:7359/udp"
+    volumes:
+      - "${HOMELAB_PATH}/jellyfin/config:/config"
+      - "${HOMELAB_PATH}/jellyfin/cache:/cache"
+      - "${HOMELAB_MEDIA_PATH}/media:/media"
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   # Homarr (Dashboard Manager)
   homarr:
@@ -196,6 +228,21 @@ services:
       - "${QBITTORRENT_PORT_UDP:-6881}:6881/udp"
     restart: unless-stopped
 
+  # Cleanuparr (Download Queue Cleanup)
+  cleanuparr:
+    image: ghcr.io/cleanuparr/cleanuparr:latest
+    container_name: Cleanuparr
+    restart: unless-stopped
+    ports:
+      - "${CLEANUPARR_PORT:-11011}:11011"
+    volumes:
+      - "${HOMELAB_PATH}/cleanuparr:/config"
+    environment:
+      - PORT=11011
+      - PUID=1026
+      - PGID=100
+      - TZ=Europe/London
+
   # Dash (System Monitoring)
   dash:
     image: mauricenino/dashdot:latest
@@ -211,20 +258,19 @@ services:
 
   # Watchtower (Auto Update)
   watchtower:
-    image: containrrr/watchtower:latest
+    image: nickfedor/watchtower:latest
     container_name: Watchtower
     ports:
       - "${WATCHTOWER_PORT:-8081}:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "${DOCKER_CONFIG_PATH:-/root/.docker/config.json}:/config.json:ro"
-
     environment:
       - TZ=Europe/London
       - WATCHTOWER_CLEANUP=true
       - WATCHTOWER_INCLUDE_STOPPED=false
       - WATCHTOWER_INCLUDE_RESTARTING=true
-      - WATCHTOWER_SCHEDULE=0 0 */2 * * * # Every 2 hours
+      - WATCHTOWER_SCHEDULE=0 0 */2 * * *
       - WATCHTOWER_LABEL_ENABLE=false
       - WATCHTOWER_TIMEOUT=30s
     restart: on-failure:5
