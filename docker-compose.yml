@@ -10,13 +10,32 @@ services:
     container_name: NginxProxyManager
     restart: unless-stopped
     ports:
-      - "${NGINX_PORT_80:-8341}:80"
+      - "${NGINX_PORT_80:-80}:80"
       - "${NGINX_PORT_81:-81}:81"
-      - "${NGINX_PORT_443:-8766}:443"
+      - "${NGINX_PORT_443:-443}:443"
       - "${NGINX_MINECRAFT_PORT:-25565}:25565"
     volumes:
       - "${HOMELAB_PATH}/nginx/data:/data"
       - "${HOMELAB_PATH}/nginx/letsencrypt:/etc/letsencrypt"
+
+  # Pi-hole (Network-wide Ad Blocking + DNS)
+  pihole:
+    image: pihole/pihole:latest
+    container_name: Pihole
+    restart: unless-stopped
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "${PIHOLE_WEB_PORT:-8053}:80"
+      - "${PIHOLE_WEB_PORT_HTTPS:-8453}:443"
+    environment:
+      - TZ=Europe/London
+      - FTLCONF_webserver_api_password=${PIHOLE_PASSWORD}
+      - FTLCONF_dns_listeningMode=ALL
+    volumes:
+      - "${HOMELAB_PATH}/pihole/etc-pihole:/etc/pihole"
+    cap_add:
+      - SYS_NICE
 
   # Cloudflare DDNS (Auto IP Tracker)
   cloudflare-ddns:
