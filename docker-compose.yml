@@ -95,11 +95,14 @@ services:
     image: lscr.io/linuxserver/plex:latest
     container_name: Plex
     network_mode: host
+    runtime: nvidia
     environment:
       - PUID=1026
       - PGID=100
       - TZ=Europe/London
       - VERSION=docker
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
     volumes:
       - "${HOMELAB_PATH}/plex:/config"
       - "${HOMELAB_MEDIA_PATH}/media/movies:/movies"
@@ -111,6 +114,10 @@ services:
     image: jellyfin/jellyfin:latest
     container_name: Jellyfin
     user: "1026:100"
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
     ports:
       - "${JELLYFIN_PORT:-8096}:8096"
       - "7359:7359/udp"
