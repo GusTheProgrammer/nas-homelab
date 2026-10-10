@@ -105,8 +105,7 @@ services:
       - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
     volumes:
       - "${HOMELAB_PATH}/plex:/config"
-      - "${HOMELAB_MEDIA_PATH}/media/movies:/movies"
-      - "${HOMELAB_MEDIA_PATH}/media/tv:/tv"
+      - "${HOMELAB_MEDIA_PATH}/media:/media"
     restart: unless-stopped
 
   # Jellyfin (Media Server)
@@ -128,6 +127,44 @@ services:
     restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  # Home Assistant (Home Automation)
+  homeassistant:
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    container_name: HomeAssistant
+    volumes:
+      - "${HOMELAB_PATH}/home-assistant:/config"
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/run/dbus:/run/dbus:ro"
+    restart: unless-stopped
+    stop_grace_period: 60s
+    privileged: true
+    network_mode: host
+    environment:
+      - TZ=Europe/London
+
+  # Music Assistant (Music Server)
+  music-assistant-server:
+    image: ghcr.io/music-assistant/server:latest
+    container_name: MusicAssistant
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - "${HOMELAB_PATH}/music-assistant:/data"
+      - "${HOMELAB_MEDIA_PATH}/media:/media:ro"
+    environment:
+      - LOG_LEVEL=info
+
+  # EchoMuse (Echo Dot Voice Assistant)
+  echomuse:
+    image: ghcr.io/wilbowes/echomuse-controller:latest
+    container_name: EchoMuse
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - SERVER_IP=${ECHOMUSE_SERVER_IP}
+    volumes:
+      - "${HOMELAB_PATH}/echomuse:/app/data"
 
   # Homarr (Dashboard Manager)
   homarr:
