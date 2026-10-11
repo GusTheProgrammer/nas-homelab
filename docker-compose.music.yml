@@ -8,6 +8,8 @@ services:
   lidarr:
     image: lscr.io/linuxserver/lidarr:develop
     container_name: Lidarr
+    labels:
+      - com.centurylinklabs.watchtower.enable=false
     environment:
       - PUID=1026
       - PGID=100
@@ -24,17 +26,22 @@ services:
   slskd:
     image: slskd/slskd:latest
     container_name: Slskd
-    user: "1000:1000"
+    user: "1026:100"
     ports:
       - "${SLSKD_WEB_PORT:-5030}:5030"
       - "${SLSKD_WEB_HTTPS_PORT:-5031}:5031"
       - "${SLSKD_SOULSEEK_PORT:-50300}:50300"
     environment:
+      - TZ=Europe/London
       - SLSKD_REMOTE_CONFIGURATION=true
+      - SLSKD_DOWNLOADS_DIR=/downloads/slskd
+      - SLSKD_INCOMPLETE_DIR=/downloads/slskd-incomplete
+      - SLSKD_SHARED_DIR=/music
     volumes:
       - "${HOMELAB_PATH}/slskd:/app"
       - "${HOMELAB_MEDIA_PATH}/torrents:/downloads"
-    restart: always
+      - "${HOMELAB_MEDIA_PATH}/media/music:/music:ro"
+    restart: unless-stopped
 
   # Home Assistant (Home Automation)
   homeassistant:
