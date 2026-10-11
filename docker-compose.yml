@@ -157,11 +157,11 @@ services:
 
   # YouTube PO Token Server (Music Assistant)
   yt-po-token-server:
-    image: ghcr.io/music-assistant/yt-po-token-server:1.2
+    image: brainicism/bgutil-ytdlp-pot-provider:1.2.1
     container_name: YT_PO_Token
     restart: unless-stopped
     ports:
-      - "${YT_PO_TOKEN_PORT:-8082}:8080"
+      - "127.0.0.1:${YT_PO_TOKEN_PORT:-8082}:4416"
 
   # EchoMuse (Echo Dot Voice Assistant)
   echomuse:
