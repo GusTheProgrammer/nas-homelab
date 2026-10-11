@@ -1,0 +1,83 @@
+networks:
+  default:
+    external: true
+    name: homelab
+
+services:
+  # Lidarr (Music + Plugins)
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:develop
+    container_name: Lidarr
+    environment:
+      - PUID=1026
+      - PGID=100
+      - TZ=Europe/London
+    volumes:
+      - "${HOMELAB_PATH}/lidarr:/config"
+      - "${HOMELAB_MEDIA_PATH}/media/music:/music"
+      - "${HOMELAB_MEDIA_PATH}/torrents:/downloads"
+    ports:
+      - "${LIDARR_PORT:-8686}:8686"
+    restart: unless-stopped
+
+  # Slskd (Soulseek FLAC Downloads)
+  slskd:
+    image: slskd/slskd:latest
+    container_name: Slskd
+    user: "1000:1000"
+    ports:
+      - "${SLSKD_WEB_PORT:-5030}:5030"
+      - "${SLSKD_WEB_HTTPS_PORT:-5031}:5031"
+      - "${SLSKD_SOULSEEK_PORT:-50300}:50300"
+    environment:
+      - SLSKD_REMOTE_CONFIGURATION=true
+    volumes:
+      - "${HOMELAB_PATH}/slskd:/app"
+      - "${HOMELAB_MEDIA_PATH}/torrents:/downloads"
+    restart: always
+
+  # Home Assistant (Home Automation)
+  homeassistant:
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    container_name: HomeAssistant
+    volumes:
+      - "${HOMELAB_PATH}/home-assistant:/config"
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/run/dbus:/run/dbus:ro"
+    restart: unless-stopped
+    stop_grace_period: 60s
+    privileged: true
+    network_mode: host
+    environment:
+      - TZ=Europe/London
+
+  # Music Assistant (Music Server)
+  music-assistant-server:
+    image: ghcr.io/music-assistant/server:latest
+    container_name: MusicAssistant
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - "${HOMELAB_PATH}/music-assistant:/data"
+      - "${HOMELAB_MEDIA_PATH}/media:/media:ro"
+    environment:
+      - LOG_LEVEL=info
+
+  # YouTube PO Token Server (Music Assistant)
+  yt-po-token-server:
+    image: brainicism/bgutil-ytdlp-pot-provider:1.2.1
+    container_name: YT_PO_Token
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${YT_PO_TOKEN_PORT:-8082}:4416"
+
+  # EchoMuse (Echo Dot Voice Assistant)
+  echomuse:
+    image: ghcr.io/wilbowes/echomuse-controller:latest
+    container_name: EchoMuse
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - SERVER_IP=${ECHOMUSE_SERVER_IP}
+    volumes:
+      - "${HOMELAB_PATH}/echomuse:/app/data"
